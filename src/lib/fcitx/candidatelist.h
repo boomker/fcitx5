@@ -10,6 +10,7 @@
 #include <cstddef>
 #include <functional>
 #include <memory>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -91,6 +92,12 @@ public:
      */
     bool spaceBetweenComment() const;
 
+    // A placement hint for a default recovery candidate at the first row's
+    // tail. Adaptive corrections leave this false and retain their native rank.
+    bool isFallback() const;
+    // A manually deferred recovery candidate: skip only the initial row.
+    bool isDeferredFallback() const;
+
 protected:
     void setText(Text text);
     void setPlaceHolder(bool placeHolder);
@@ -98,6 +105,8 @@ protected:
     void setCustomLabel(Text text);
     void setComment(Text comment);
     void setSpaceBetweenComment(bool space);
+    void setFallback(bool fallback);
+    void setDeferredFallback(bool deferred);
 
 private:
     std::unique_ptr<CandidateWordPrivate> d_ptr;
@@ -264,6 +273,20 @@ public:
      * Trigger the action based on the index returned from candidateActions.
      */
     virtual void triggerAction(const CandidateWord &candidate, int id) = 0;
+};
+
+struct CandidateActionContext {
+    std::optional<bool> isOnFirstPage;
+};
+
+/** Optional UI context without changing the existing actionable interface ABI. */
+class FCITXCORE_EXPORT ContextualActionableCandidateList
+    : public ActionableCandidateList {
+public:
+    ~ContextualActionableCandidateList() override;
+    using ActionableCandidateList::triggerAction;
+    virtual void triggerAction(const CandidateWord &candidate, int id,
+                               const CandidateActionContext &context) = 0;
 };
 
 /**

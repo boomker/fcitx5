@@ -92,6 +92,8 @@ public:
 
 ActionableCandidateList::~ActionableCandidateList() = default;
 
+ContextualActionableCandidateList::~ContextualActionableCandidateList() = default;
+
 TabbedCandidateList::~TabbedCandidateList() = default;
 
 class CandidateListPrivate {
@@ -202,6 +204,8 @@ public:
     bool hasCustomLabel_ = false;
     Text comment_;
     bool spaceBetweenComment_ = true;
+    bool isFallback_ = false;
+    bool isDeferredFallback_ = false;
 };
 
 CandidateWord::CandidateWord(Text text)
@@ -279,6 +283,26 @@ bool CandidateWord::spaceBetweenComment() const {
 void CandidateWord::setSpaceBetweenComment(bool space) {
     FCITX_D();
     d->spaceBetweenComment_ = space;
+}
+
+bool CandidateWord::isFallback() const {
+    FCITX_D();
+    return d->isFallback_;
+}
+
+void CandidateWord::setFallback(bool fallback) {
+    FCITX_D();
+    d->isFallback_ = fallback;
+}
+
+bool CandidateWord::isDeferredFallback() const {
+    FCITX_D();
+    return d->isDeferredFallback_;
+}
+
+void CandidateWord::setDeferredFallback(bool deferred) {
+    FCITX_D();
+    d->isDeferredFallback_ = deferred;
 }
 
 class DisplayOnlyCandidateListPrivate {

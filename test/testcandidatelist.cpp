@@ -38,6 +38,8 @@ public:
     }
 
     using CandidateWord::setSpaceBetweenComment;
+    using CandidateWord::setFallback;
+    using CandidateWord::setDeferredFallback;
 
 private:
     int number_;
@@ -57,7 +59,72 @@ private:
     int number_;
 };
 
+class LegacyTestCandidateActions : public ActionableCandidateList {
+public:
+    bool hasAction(const CandidateWord &) const override { return true; }
+    std::vector<CandidateAction> candidateActions(const CandidateWord &) const override {
+        CandidateAction action;
+        action.setId(1);
+        return {action};
+    }
+    void triggerAction(const CandidateWord &, int id) override { legacyId = id; }
+    int legacyId = -1;
+};
+
+class ContextualTestCandidateActions : public ContextualActionableCandidateList {
+public:
+    bool hasAction(const CandidateWord &) const override { return true; }
+    std::vector<CandidateAction> candidateActions(const CandidateWord &) const override {
+        CandidateAction action;
+        action.setId(1);
+        return {action};
+    }
+    void triggerAction(const CandidateWord &, int id) override { legacyId = id; }
+    void triggerAction(const CandidateWord &, int id, const CandidateActionContext &context) override {
+        contextualId = id;
+        firstPage = context.isOnFirstPage;
+    }
+    int legacyId = -1;
+    int contextualId = -1;
+    std::optional<bool> firstPage;
+};
+
+void test_contextual_candidate_actions() {
+    TestCandidateWord candidate(0);
+    LegacyTestCandidateActions legacy;
+    ActionableCandidateList *base = &legacy;
+    FCITX_ASSERT(dynamic_cast<ContextualActionableCandidateList *>(base) == nullptr);
+    base->triggerAction(candidate, 2);
+    FCITX_ASSERT(legacy.legacyId == 2);
+
+    ContextualTestCandidateActions contextual;
+    base = &contextual;
+    auto *optional = dynamic_cast<ContextualActionableCandidateList *>(base);
+    FCITX_ASSERT(optional);
+    optional->triggerAction(candidate, 3, {});
+    FCITX_ASSERT(contextual.contextualId == 3 && !contextual.firstPage);
+    optional->triggerAction(candidate, 4, {.isOnFirstPage = false});
+    FCITX_ASSERT(contextual.firstPage.has_value() && !*contextual.firstPage);
+    optional->triggerAction(candidate, 5, {.isOnFirstPage = true});
+    FCITX_ASSERT(contextual.firstPage.has_value() && *contextual.firstPage);
+    base->triggerAction(candidate, 6);
+    FCITX_ASSERT(contextual.legacyId == 6);
+}
+
 void test_basic() {
+    TestCandidateWord recovery(0);
+    FCITX_ASSERT(!recovery.isFallback());
+    recovery.setFallback(true);
+    FCITX_ASSERT(recovery.isFallback());
+    recovery.setFallback(false);
+    FCITX_ASSERT(!recovery.isFallback());
+    FCITX_ASSERT(!recovery.isDeferredFallback());
+    recovery.setDeferredFallback(true);
+    FCITX_ASSERT(recovery.isDeferredFallback());
+    FCITX_ASSERT(!recovery.isFallback());
+    recovery.setDeferredFallback(false);
+    FCITX_ASSERT(!recovery.isDeferredFallback());
+
     CommonCandidateList candidatelist;
     candidatelist.setSelectionKey(
         Key::keyListFromString("1 2 3 4 5 6 7 8 9 0"));
@@ -555,6 +622,7 @@ void testFilter() {
 } // namespace
 
 int main() {
+    test_contextual_candidate_actions();
     test_basic();
     test_faulty_placeholder();
     test_label();

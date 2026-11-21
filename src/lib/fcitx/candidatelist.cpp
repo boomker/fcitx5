@@ -206,6 +206,7 @@ public:
     bool spaceBetweenComment_ = true;
     bool isFallback_ = false;
     bool isDeferredFallback_ = false;
+    const CandidateWord *sourceCandidate_ = nullptr;
 };
 
 CandidateWord::CandidateWord(Text text)
@@ -303,6 +304,16 @@ bool CandidateWord::isDeferredFallback() const {
 void CandidateWord::setDeferredFallback(bool deferred) {
     FCITX_D();
     d->isDeferredFallback_ = deferred;
+}
+
+const CandidateWord *CandidateWord::sourceCandidate() const {
+    FCITX_D();
+    return d->sourceCandidate_;
+}
+
+void CandidateWord::setSourceCandidate(const CandidateWord *source) {
+    FCITX_D();
+    d->sourceCandidate_ = source;
 }
 
 class DisplayOnlyCandidateListPrivate {

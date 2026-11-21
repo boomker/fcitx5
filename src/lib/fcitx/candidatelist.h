@@ -98,6 +98,10 @@ public:
     // A manually deferred recovery candidate: skip only the initial row.
     bool isDeferredFallback() const;
 
+    // The candidate this item was generated from, if any. The source is not
+    // owned here and must remain alive in the same candidate list.
+    const CandidateWord *sourceCandidate() const;
+
 protected:
     void setText(Text text);
     void setPlaceHolder(bool placeHolder);
@@ -107,6 +111,7 @@ protected:
     void setSpaceBetweenComment(bool space);
     void setFallback(bool fallback);
     void setDeferredFallback(bool deferred);
+    void setSourceCandidate(const CandidateWord *source);
 
 private:
     std::unique_ptr<CandidateWordPrivate> d_ptr;

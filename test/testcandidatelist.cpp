@@ -40,6 +40,7 @@ public:
     using CandidateWord::setSpaceBetweenComment;
     using CandidateWord::setFallback;
     using CandidateWord::setDeferredFallback;
+    using CandidateWord::setAbbreviation;
 
 private:
     int number_;
@@ -124,6 +125,14 @@ void test_basic() {
     FCITX_ASSERT(!recovery.isFallback());
     recovery.setDeferredFallback(false);
     FCITX_ASSERT(!recovery.isDeferredFallback());
+
+    FCITX_ASSERT(!recovery.isAbbreviation() && !recovery.isBestAbbreviation());
+    recovery.setAbbreviation(true, false);
+    FCITX_ASSERT(recovery.isAbbreviation() && !recovery.isBestAbbreviation());
+    recovery.setAbbreviation(true, true);
+    FCITX_ASSERT(recovery.isAbbreviation() && recovery.isBestAbbreviation());
+    recovery.setAbbreviation(false, true);
+    FCITX_ASSERT(!recovery.isAbbreviation() && !recovery.isBestAbbreviation());
 
     CommonCandidateList candidatelist;
     candidatelist.setSelectionKey(

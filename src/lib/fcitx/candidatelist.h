@@ -92,11 +92,13 @@ public:
      */
     bool spaceBetweenComment() const;
 
-    // A placement hint for a default recovery candidate at the first row's
-    // tail. Adaptive corrections leave this false and retain their native rank.
+    // A placement hint for a default recovery candidate in the second slot. Adaptive corrections leave this false and retain their native rank.
     bool isFallback() const;
     // A manually deferred recovery candidate: skip only the initial row.
     bool isDeferredFallback() const;
+    // Ordinary shuangpin initial abbreviations; only the best needs a visible slot.
+    bool isAbbreviation() const;
+    bool isBestAbbreviation() const;
 
     // The candidate this item was generated from, if any. The source is not
     // owned here and must remain alive in the same candidate list.
@@ -111,6 +113,7 @@ protected:
     void setSpaceBetweenComment(bool space);
     void setFallback(bool fallback);
     void setDeferredFallback(bool deferred);
+    void setAbbreviation(bool abbreviation, bool best = false);
     void setSourceCandidate(const CandidateWord *source);
 
 private:

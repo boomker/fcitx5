@@ -206,6 +206,8 @@ public:
     bool spaceBetweenComment_ = true;
     bool isFallback_ = false;
     bool isDeferredFallback_ = false;
+    bool isAbbreviation_ = false;
+    bool isBestAbbreviation_ = false;
     const CandidateWord *sourceCandidate_ = nullptr;
 };
 
@@ -304,6 +306,22 @@ bool CandidateWord::isDeferredFallback() const {
 void CandidateWord::setDeferredFallback(bool deferred) {
     FCITX_D();
     d->isDeferredFallback_ = deferred;
+}
+
+bool CandidateWord::isAbbreviation() const {
+    FCITX_D();
+    return d->isAbbreviation_;
+}
+
+bool CandidateWord::isBestAbbreviation() const {
+    FCITX_D();
+    return d->isBestAbbreviation_;
+}
+
+void CandidateWord::setAbbreviation(bool abbreviation, bool best) {
+    FCITX_D();
+    d->isAbbreviation_ = abbreviation;
+    d->isBestAbbreviation_ = abbreviation && best;
 }
 
 const CandidateWord *CandidateWord::sourceCandidate() const {
